@@ -1,0 +1,145 @@
+/* -----  google Font  -----*/
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Roboto, sans-serif;
+    --primary-color: rgb(24, 144, 255);
+
+    /*background-image: url('fon.jpg');*/
+    /*-webkit-background-size: cover;*/
+    /*background-size: cover;*/
+}
+
+.dws-wrapper {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.logo {
+    padding-bottom: 10px;
+}
+.dws-form {
+    /*background-color: rgba(var(--primary-color), 0.8);*/
+    background-color: var(--primary-color);
+
+    padding: 10px;
+    width: 330px;
+}
+
+.dws-form input:not([type=checkbox]){
+    display: block;
+    width: 100%;
+}
+
+.tab-form {
+    background-color: #fff;
+    display: none;
+    padding: 30px 20px 20px;
+}
+
+.tab-form.active {
+    display: block;
+}
+
+label.tab {
+    color: #ffffff;
+    font-weight: 600;
+    padding: 15px;
+    display: inline-block;
+    border-radius: 3px 3px 0 0;
+    margin-bottom: -1px;
+    cursor: pointer;
+}
+
+label.tab.active,
+input[name="tabs"]:checked + label {
+    background-color: #fff;
+    color: var(--primary-color);
+}
+
+input[name="tabs"] {
+    display: none;
+}
+
+/* Формы */
+.input {
+    font-size: 16px;
+    border: 2px solid #e9eaea;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    margin-bottom: 22px;
+    color: var(--primary-color);
+    outline: none;
+}
+
+::-webkit-input-placeholder {
+    color: #c4c9c9;
+}
+
+/* webkit */
+::-moz-placeholder {
+    color: var(--primary-color);
+}
+
+/* Firefox 19+ */
+:-moz-placeholder {
+    color: var(--primary-color);
+}
+
+/* Firefox 18- */
+:-ms-input-placeholder {
+    color: var(--primary-color);
+}
+
+/* IE */
+
+a.button {
+    background: var(--primary-color);
+    color: #ffffff;
+    font-size: 18px;
+    text-transform: uppercase;
+    display: block;
+    text-align: center;
+    line-height: 46px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.del {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

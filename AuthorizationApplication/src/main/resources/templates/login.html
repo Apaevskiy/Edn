@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма авторизации</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/login/login.css}" type="text/css">
+    <script th:src="@{/login/jquery.min.js}"></script>
+    <script th:src="@{/login/login.js}"></script>
+</head>
+<body>
+<div class="dws-wrapper">
+    <img alt="logo" class="logo" width="310" th:src="@{/login/logo.svg}">
+    <div class="dws-form">
+        <label class="tab active" title="Login" form_id="formLogin">Авторизация</label>
+        <label class="tab " title="Registration" form_id="formRegistration">Регистрация</label>
+
+        <form class="tab-form active" method="post" id="formLogin">
+            <input class="input" name="email" type="email" placeholder="Введите E-mail" id="email">
+            <input class="input" name="password" type="password" placeholder="Введите пароль" id="password">
+            <a href="#" class="button" onclick="validLogin(document.getElementById('formLogin'))">Войти</a>
+            <a href="#" form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
+        </form>
+
+        <form class="tab-form" method="post" id="formRegistration">
+            <input class="input" name="email" type="email" placeholder="Введите E-mail адрес">
+            <a href="#" class="button" onclick="validRegistration(document.getElementById('formRegistration'))">Регистрация</a>
+            <span><input name="registrationConditions" type="checkbox">Я принимаю <a href="#">условия регистрации</a></span>
+        </form>
+
+        <form class="tab-form" method="post" id="formRecoveryPassword">
+            <input class="input" name="email" type="email" placeholder="Введите E-mail адрес">
+            <a href="#" class="button" onclick="validRecoveryPassword(document.getElementById('formRecoveryPassword'))">
+                Восстановить пароль</a>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

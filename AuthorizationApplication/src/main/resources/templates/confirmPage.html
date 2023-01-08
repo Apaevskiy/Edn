@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма авторизации</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/login/login.css}" type="text/css">
+    <link rel="stylesheet" href="/static/login/login.css" th:href="@{/login/login.css}" type="text/css">
+</head>
+<body>
+<div class="dws-wrapper">
+    <img alt="logo" class="logo" width="310" src="/static/login/logo.svg" th:src="@{/login/logo.svg}">
+    <div class="dws-form">
+        <form class="tab-form active" method="post" id="formLogin">
+            <label for="email">На Вашу почту (%s) выслано письмо с кодом. Введите его в поле ниже для продолжения регистрации.</label>
+            <input class="input" name="kod" type="email" placeholder="Введите E-mail" id="email">
+            <a type="button" class="button">Подтвердить</a>
+        </form>
+    </div>
+</div>
+</body>
+</html>
