@@ -22,7 +22,7 @@ public class WebFluxAuthorizationConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return
                 http.authorizeExchange(exchanges -> exchanges
-                                .pathMatchers("/login", "/login/**").permitAll()
+                                .pathMatchers("/login", "/login/**", "/registration", "/recoveryPassword").permitAll()
                                 .anyExchange().authenticated()
                                 .and().csrf().disable())
                         .formLogin().loginPage("/login")

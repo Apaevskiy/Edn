@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Форма авторизации</title>
@@ -18,23 +18,33 @@
         <form class="tab-form active" method="post" id="formLogin">
             <input class="input" name="email" type="email" placeholder="Введите E-mail" id="email">
             <input class="input" name="password" type="password" placeholder="Введите пароль" id="password">
-            <a href="#" class="button" onclick="validLogin(document.getElementById('formLogin'))">Войти</a>
-            <a href="#" form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
+            <input type="submit" value="Войти" class="button">
+            <a form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
         </form>
 
-        <form class="tab-form" method="post" id="formRegistration">
-            <input class="input" name="email" type="email" placeholder="Введите E-mail адрес">
-            <a href="#" class="button" onclick="validRegistration(document.getElementById('formRegistration'))">Регистрация</a>
-            <span><input name="registrationConditions" type="checkbox">Я принимаю <a href="#">условия регистрации</a></span>
+        <form class="tab-form" th:action="@{/registration}" th:object="${regUser}" id="formRegistration" method="post">
+            <input class="input" th:field="*{username}" name="email" type="email" placeholder="Введите E-mail адрес">
+            <span>
+                <input type="checkbox" required>
+                Я принимаю <a href="#" target="_blank">условия регистрации</a>
+            </span>
+            <span class="error" id="errorRegistration"></span>
+            <input type="submit" class="button" value="Регистрация">
         </form>
 
         <form class="tab-form" method="post" id="formRecoveryPassword">
             <input class="input" name="email" type="email" placeholder="Введите E-mail адрес">
-            <a href="#" class="button" onclick="validRecoveryPassword(document.getElementById('formRecoveryPassword'))">
-                Восстановить пароль</a>
+            <input type="submit" value="Восстановить пароль" class="button">
         </form>
-
     </div>
 </div>
+<script>
+    const queryString = window.location.search;
+    console.log(queryString);
+    const urlParams = new URLSearchParams(queryString);
+    const formId = urlParams.get('form')
+    if (formId != null)
+        clickOnForm($(".tab[form_id=" + formId + "]"));
+</script>
 </body>
 </html>

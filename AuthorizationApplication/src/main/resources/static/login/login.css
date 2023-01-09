@@ -42,7 +42,8 @@ body {
 }
 
 .tab-form.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 label.tab {
@@ -52,6 +53,8 @@ label.tab {
     display: inline-block;
     border-radius: 3px 3px 0 0;
     margin-bottom: -1px;
+}
+.tab {
     cursor: pointer;
 }
 
@@ -71,8 +74,8 @@ input[name="tabs"] {
     border: 2px solid #e9eaea;
     padding: 12px 14px;
     box-sizing: border-box;
-    margin-bottom: 22px;
-    color: var(--primary-color);
+    margin: 11px;
+    /*color: var(--primary-color);*/
     outline: none;
 }
 
@@ -97,7 +100,7 @@ input[name="tabs"] {
 
 /* IE */
 
-a.button {
+.button {
     background: var(--primary-color);
     color: #ffffff;
     font-size: 18px;
