@@ -78,7 +78,15 @@ input[name="tabs"] {
     /*color: var(--primary-color);*/
     outline: none;
 }
+.errors{
 
+}
+.errors > ul{
+
+}
+.errors > ul> li{
+
+}
 ::-webkit-input-placeholder {
     color: #c4c9c9;
 }

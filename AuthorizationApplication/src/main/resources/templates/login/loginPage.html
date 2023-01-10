@@ -19,16 +19,23 @@
             <input class="input" th:field="${user.username}" name="email" type="email" placeholder="Введите E-mail" id="email">
             <input class="input" th:field="${user.password}" name="password" type="password" placeholder="Введите пароль" id="password">
             <input type="submit" value="Войти" class="button">
+            <div th:if="${param.logout}">Вы вышли из аккаунта.</div>
             <a form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
         </form>
 
-        <form class="tab-form" th:action="@{/confirmEmail}" th:object="${regUser}" id="formRegistration" method="post">
-            <input class="input" th:field="*{username}" name="email" type="email" placeholder="Введите E-mail адрес">
+        <form class="tab-form" th:action="@{/registration}" th:object="${regUser}"  id="formRegistration" method="post">
+            <input class="input" th:field="${regUser.username}" name="email" type="email" placeholder="Введите E-mail адрес">
+            <input class="input" th:field="${regUser.password}" name="password" type="password" placeholder="Введите пароль">
+            <input class="input" type="password" placeholder="Подтвердите пароль">
             <span>
                 <input type="checkbox" required>
                 Я принимаю <a href="#" target="_blank">условия регистрации</a>
             </span>
-            <span class="error" id="errorRegistration"></span>
+            <div class="errors" th:if="${regError != null}">
+                <ul>
+                    <li th:each="instance : ${regError.instanceMap}" th:text="${instance.value}" />
+                </ul>
+            </div>
             <input type="submit" class="button" value="Регистрация">
         </form>
 
@@ -45,6 +52,9 @@
     const formId = urlParams.get('form')
     if (formId != null)
         clickOnForm($(".tab[form_id=" + formId + "]"));
+</script>
+<script th:if="${regError != null}">
+    clickOnForm($(".tab[form_id=formRegistration]"));
 </script>
 </body>
 </html>

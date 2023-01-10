@@ -1,27 +1,27 @@
 package tt.authorization.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import tt.authorization.entity.security.ConfirmUser;
+import tt.authorization.entity.security.Role;
 import tt.authorization.entity.security.User;
-import tt.authorization.repository.secutiry.ConfirmUserRepository;
 import tt.authorization.repository.secutiry.RoleRepository;
 import tt.authorization.repository.secutiry.UserRepository;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService, ReactiveUserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final ConfirmUserRepository confirmUserRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = bCryptPasswordEncoder();
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -32,21 +32,23 @@ public class UserService implements UserDetailsService, ReactiveUserDetailsServi
         return userRepository.findByUsername(username);
     }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
     public Mono<UserDetails> findByUsername(String s) {
         return Mono.just(getUserByUsername(s));
     }
 
-    public ConfirmUser findConfirmUserByEmail(String email) {
-        return confirmUserRepository.findConfirmUserByEmail(email);
-    }
+    public boolean addUser(User user) {
+        User userFormDb = userRepository.findByUsername(user.getUsername());
 
-    public ConfirmUser saveConfirmUser(ConfirmUser user) {
-        return confirmUserRepository.save(user);
+        if (userFormDb != null) {
+            return false;
+        }
+        user.setActive(true);
+        user.setDateRegistration(new Date().getTime());
+        Optional<Role> role = roleRepository.findById(1L);
+        role.ifPresent(value -> user.setRoles(Collections.singleton(value)));
+        user.setActivationCode(UUID.randomUUID().toString());
+        userRepository.save(user);
+        return true;
     }
 }

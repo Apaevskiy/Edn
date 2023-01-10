@@ -4,23 +4,21 @@
     <meta charset="UTF-8">
     <title>Потверждение почты</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/login/login.css" th:href="@{/login/login.css}" type="text/css">
+    <link rel="stylesheet" href="/login/login.css" th:href="@{/login/login.css}" type="text/css">
 </head>
 <body>
 <div class="dws-wrapper">
-    <img alt="logo" class="logo" width="310" src="/static/login/logo.svg" th:src="@{/login/logo.svg}">
+    <img alt="logo" class="logo" width="310" src="/login/logo.svg" th:src="@{/login/logo.svg}">
     <div class="dws-form">
-        <form class="tab-form active" method="post" th:action="@{/registration}" th:object="${user}" id="formLogin">
-            <label for="key"
-                   th:text="*{'На Вашу почту '+email+' выслано письмо с кодом. Введите его в поле ниже для продолжения регистрации.'}"></label>
-            <input class="input" name="kod" type="text" placeholder="Введите код из письма" id="key" th:field="*{key}"
-                   th:value="null">
-            <input class="hidden" name="email" type="email" th:field="*{email}" th:value="*{email}">
+        <form class="tab-form active" method="post" th:action="@{/confirmEmail}" th:object="${user}" id="formLogin">
+            <label
+                   th:text="${'На Вашу почту '+user.username+' выслано письмо с кодом. Введите его в поле ниже для продолжения регистрации.'}"></label>
+            <input class="hidden" name="email" type="email" th:field="${user.username}" th:value="${user.username}">
             <input type="submit" class="button" value="Подтвердить">
             <span style="text-align: center;" id="dateRegistration"></span>
             <a style="text-align: center;" th:href="@{/login?form=formRegistration}">Указать другой почтовый адрес</a>
-            <button id="sendMailButton" class="button hidden" onclick=window.location.reload()>Отправить письмо
-                повторно
+            <button id="sendMailButton" class="button hidden" onclick=window.location.reload()>
+                Отправить письмо повторно
             </button>
         </form>
     </div>
