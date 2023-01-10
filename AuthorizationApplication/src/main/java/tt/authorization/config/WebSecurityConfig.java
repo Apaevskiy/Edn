@@ -26,7 +26,7 @@ public class WebSecurityConfig {
         return
                 http.authorizeExchange(exchanges -> exchanges
                                 .pathMatchers(
-                                        "/login", "/login/**", "/registration",
+                                        "/login", "/login/**", "/registration", "/test",
                                         "/confirmPassword", "/confirmEmail", "/recoveryPassword").permitAll()
                                 .pathMatchers("/confirm").hasRole("ADMIN")
                                 .pathMatchers("/app").hasAnyRole("USER","ADMIN")

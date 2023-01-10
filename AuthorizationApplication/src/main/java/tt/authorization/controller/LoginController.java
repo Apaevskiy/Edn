@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,7 @@ public class LoginController {
         this.mailService = mailService;
     }
 
-    @GetMapping(path = {"/","/login","/recoveryPassword","/registration"})
+    @GetMapping(path = {"/", "/login", "/recoveryPassword", "/registration"})
     public String loginPage(@RequestParam(name = "form", required = false) String form, Model model) {
         model.addAttribute("regUser", new User());
         model.addAttribute("user", new User());
@@ -77,26 +78,22 @@ public class LoginController {
     }
 
     @PostMapping("/registration")
-    public String registration(@Valid @ModelAttribute User user,
+        public String registration(@Valid @ModelAttribute(name = "reqUser") User user,
                                BindingResult bindingResult,
                                Model model) {
         System.out.println("/reg: " + user);
 
-       /* if(!user.getPassword().equals(confirmPassword)){
-            bindingResult.addError(new ObjectError("regUser", "Пароли не совпадают"));
-            return "login/loginPage";
-        }*/
-
-        model.addAttribute("user", new User());
-        model.addAttribute("regUser", user);
-        if (bindingResult.hasErrors()) {
-            System.out.println("error: ");
+        if (bindingResult.hasErrors() || !user.getPassword().equals(user.getConfirmPassword())) {
+            model.addAttribute("user", new User());
+            model.addAttribute("regUser", user);
             model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/loginPage";
         }
-        return "login/confirmPage";
-        /*if (!userService.addUser(user)) {
-            bindingResult.addError(new ObjectError("regUser", "Данный email уже зарегистрирован"));
+        if (!userService.addUser(user)) {
+            bindingResult.addError(new ObjectError("userExistError", "Данный email уже зарегистрирован"));
+            model.addAttribute("user", new User());
+            model.addAttribute("regUser", user);
+            model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/confirmPage";
         }
         try {
@@ -104,12 +101,10 @@ public class LoginController {
             model.addAttribute("email", user.getUsername());
             return "login/confirmPage";
         } catch (MessagingException e) {
-            bindingResult.addError(new ObjectError("regUser", "Ошибка отправки письма на данную почту"));
+//            bindingResult.addError(new ObjectError("regUser", "Ошибка отправки письма на данную почту"));
             return "login/loginPage";
-        }*/
-
+        }
     }
-
 
     @PostMapping("/recoveryPassword")
     public String recoveryPassword() {

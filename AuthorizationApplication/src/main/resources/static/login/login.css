@@ -79,13 +79,15 @@ input[name="tabs"] {
     outline: none;
 }
 .errors{
-
+    display: flex;
+    justify-content: space-around;
 }
 .errors > ul{
-
+    padding-left: 0;
 }
 .errors > ul> li{
-
+    color: red;
+    margin: 0;
 }
 ::-webkit-input-placeholder {
     color: #c4c9c9;
