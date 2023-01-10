@@ -1,4 +1,4 @@
-package tt.authorization.entity;
+package tt.authorization.entity.security;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

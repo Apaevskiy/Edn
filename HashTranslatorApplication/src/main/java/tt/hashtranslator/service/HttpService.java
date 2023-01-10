@@ -21,9 +21,4 @@ public class HttpService {
         return hash1 != null ? hash1.getDecodedText() : "";
     }
 
-    @PostConstruct
-    public void test(){
-        System.out.println(parse("0800fc577294c34e0b28ad2839435945"));
-    }
-
 }

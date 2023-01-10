@@ -1,4 +1,4 @@
-package tt.authorization.entity;
+package tt.authorization.entity.security;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,12 +24,10 @@ public class User implements UserDetails {
     private String username;
     @Column(columnDefinition = "varchar(255) default '$2a$10$EjvY.OfCwyFqpgj03sR5D.LoJm2R53KvbYrhmC1D.BtrWbla77OEW'")
     private String password;
+    private String activationCode;
+    private boolean active;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
-
-    @ManyToOne
-    @JoinColumn(name = "org_id")
-    private Organization organization;
 
     @Override
     public String getUsername() {
@@ -53,7 +51,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 
     @Override
