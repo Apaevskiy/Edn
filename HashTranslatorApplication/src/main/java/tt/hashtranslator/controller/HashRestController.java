@@ -1,29 +1,31 @@
 package tt.hashtranslator.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import tt.hashtranslator.models.HashesRequest;
-import tt.hashtranslator.repository.HashRepository;
+import tt.hashtranslator.models.Application;
+import tt.hashtranslator.models.Request;
+import tt.hashtranslator.repository.AppRepository;
 import tt.hashtranslator.service.HttpService;
-
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
 public class HashRestController {
     private final HttpService httpService;
-    private final HashRepository repository;
+    private final AppRepository repository;
+    @PostMapping("/createHashes")
+    public Mono<String> generateId() {
+        return repository.save(new Application()).map(Application::getId);
+    }
 
-//    @PostMapping("/hash")
-//    Flux<String> parseHash(@RequestBody Flux<String> fluxHash) {
-//        return fluxHash.map(httpService::parse);
-//    }
-
-
-
+    @PostMapping("/encryptHashes/{id}")
+    public Mono<Application> encryptHashesAndWriteToDb(@PathVariable("id") String id, @RequestBody Request request) {
+        return repository.findById(id).flatMap(app -> {
+            request.getHashes().forEach(s -> app.getHash().put(s, httpService.secondDecrypt(s)));
+            return repository.save(app);
+        });
+    }
 }
