@@ -1,7 +1,6 @@
 package tt.authorization.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -9,10 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import tt.authorization.entity.security.User;
@@ -21,13 +17,14 @@ import tt.authorization.service.UserService;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.util.UUID;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.regex.Pattern;
 
 @Controller
 @Slf4j
 public class LoginController {
-    @Value("${server.port}")
-    private String serverPort;
+
     private final UserService userService;
     private final MailService mailService;
 
@@ -36,9 +33,8 @@ public class LoginController {
         this.mailService = mailService;
     }
 
-    @GetMapping(path = {"/", "/login", "/recoveryPassword", "/registration"})
+    @GetMapping(path = {"/", "/login", "/recovery", "/registration"})
     public String loginPage(@RequestParam(name = "form", required = false) String form, Model model) {
-        model.addAttribute("regUser", new User());
         model.addAttribute("user", new User());
         return "login/loginPage";
     }
@@ -56,58 +52,110 @@ public class LoginController {
                 .map(u -> "redirect:/app");
     }
 
-    @PostMapping("/confirmEmail")
-    public String confirmEmail(@ModelAttribute User user,
-                               BindingResult bindingResult,
-                               Model model) {
-        System.out.println("/conf: " + user);
-
-        User dbUser = userService.getUserByUsername(user.getUsername());
-        if (dbUser == null) {
-            return "redirect:/login";
-        }
-
-        dbUser.setDateRegistration(dbUser.getDateRegistration() + 5 * 60 * 1000);
-        dbUser.setActivationCode(UUID.randomUUID().toString());
-        model.addAttribute("user", dbUser);
-        try {
-            mailService.sendEmail(user.getUsername(), user.getActivationCode());
-        } catch (MessagingException ignored) {
-        }
-        return "login/confirmPage";
-    }
 
     @PostMapping("/registration")
-        public String registration(@Valid @ModelAttribute(name = "reqUser") User user,
+    public String registration(@Valid @ModelAttribute User user,
                                BindingResult bindingResult,
                                Model model) {
         System.out.println("/reg: " + user);
 
-        if (bindingResult.hasErrors() || !user.getPassword().equals(user.getConfirmPassword())) {
-            model.addAttribute("user", new User());
-            model.addAttribute("regUser", user);
+        if (userService.containsErrors(user, bindingResult, model)) {
+            model.addAttribute("user", user);
             model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/loginPage";
         }
+
         if (!userService.addUser(user)) {
             bindingResult.addError(new ObjectError("userExistError", "Данный email уже зарегистрирован"));
-            model.addAttribute("user", new User());
-            model.addAttribute("regUser", user);
+            model.addAttribute("user", user);
             model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
-            return "login/confirmPage";
+            return "login/loginPage";
         }
         try {
-            mailService.sendEmail(user.getUsername(), user.getActivationCode());
-            model.addAttribute("email", user.getUsername());
+            mailService.sendRegistrationEmail(user.getUsername(), user.getActivationCode());
+            user.setDateRegistration(user.getDateRegistration() + 300000);
+            model.addAttribute("user", user);
             return "login/confirmPage";
-        } catch (MessagingException e) {
-//            bindingResult.addError(new ObjectError("regUser", "Ошибка отправки письма на данную почту"));
+        } catch (MessagingException | UnknownHostException e) {
+            bindingResult.addError(new ObjectError("regUser", "Ошибка отправки письма на данную почту"));
+            model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/loginPage";
         }
     }
 
-    @PostMapping("/recoveryPassword")
-    public String recoveryPassword() {
+    @PostMapping("/recovery")
+    public String recovery(@ModelAttribute User user,
+                           Model model) {
+        if(!Pattern.compile(".+[@].+[\\.].+").matcher(user.getUsername()).find()){
+            model.addAttribute("user", user);
+            model.addAttribute("recoveryError", Collections.singleton("Неверный формат почты"));
+            return "login/loginPage";
+        }
+
+        User dbUser = userService.updateActivationCode(user.getUsername());
+        if (dbUser == null) {
+            model.addAttribute("user", user);
+            model.addAttribute("recoveryError", Collections.singleton("Email адрес не найден"));
+            return "login/loginPage";
+        }
+        try {
+            dbUser.setDateRegistration(dbUser.getDateRegistration() + 300000);
+            mailService.sendRecoveryEmail(dbUser.getUsername(), dbUser.getActivationCode());
+            model.addAttribute("user", dbUser);
+            return "login/confirmPage";
+        } catch (MessagingException | UnknownHostException e) {
+            model.addAttribute("regError", Collections.singleton("Ошибка отправки письма на данную почту"));
+            return "login/loginPage";
+        }
+    }
+    @GetMapping("/activate/{key}")
+    public String confirmEmail(@PathVariable(name = "key") String key, Model model){
+        System.out.println("activate: " + key);
+        User activatedUser = userService.activateUser(key);
+
+        if(activatedUser!=null){
+            model.addAttribute("user", activatedUser);
+            model.addAttribute("regSuccess", "Регистрация прошла успешна");
+        } else {
+            model.addAttribute("regError", Collections.singleton("Код активации не найден"));
+            model.addAttribute("user", new User());
+        }
         return "login/loginPage";
     }
+    @GetMapping("/recovery/{key}")
+    public String recoveryPasswordPage(@PathVariable(name = "key") String key, Model model) {
+        System.out.println("recovery: " + key);
+        User activatedUser = userService.recoveryPassword(key);
+
+        if (activatedUser != null) {
+            activatedUser.setPassword(null);
+            model.addAttribute("user", activatedUser);
+            model.addAttribute("uuid", key);
+            return "login/recoveryPasswordPage";
+        } else {
+            model.addAttribute("recoveryError", Collections.singleton("Email не найден"));
+            model.addAttribute("user", new User());
+        }
+        return "login/loginPage";
+    }
+
+    @PostMapping("/recoveryPassword")
+    public String recoveryPassword(@Valid @ModelAttribute User user,
+                                   BindingResult bindingResult,
+                                   Model model) {
+        if (userService.containsErrors(user, bindingResult, model)) {
+            model.addAttribute("user", user);
+            model.addAttribute("uuid", user.getActivationCode());
+            model.addAttribute("recoveryError", ControllerUtils.getErrors(bindingResult));
+            return "login/recoveryPasswordPage";
+        }
+        User dbUser = userService.updatePassword(user);
+        if(user==null)
+            return "redirect:/login";
+
+        model.addAttribute("user", dbUser);
+        model.addAttribute("regSuccess", "Пароль успешно восстановлен");
+        return "login/loginPage";
+    }
+
 }

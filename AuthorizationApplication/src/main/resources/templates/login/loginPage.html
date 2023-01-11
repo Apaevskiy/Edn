@@ -16,36 +16,44 @@
         <label class="tab " title="Registration" form_id="formRegistration">Регистрация</label>
 
         <form class="tab-form active" method="post" id="formLogin" th:action="@{/login}" th:object="${user}">
-            <input class="input" th:field="${user.username}" th:value="${regUser.username}" name="email" type="email"
+            <input class="input" th:field="${user.username}" th:value="${user.username}" name="email" type="email"
                    placeholder="Введите E-mail" id="email">
             <input class="input" th:field="${user.password}" name="password" type="password"
                    placeholder="Введите пароль" id="password">
             <input type="submit" value="Войти" class="button">
             <div th:if="${param.logout}">Вы вышли из аккаунта.</div>
             <a form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
+            <span class="apply" th:if="regSuccess!=null" th:text="${regSuccess}"></span>
         </form>
 
-        <form class="tab-form" th:action="@{/registration}" th:object="${regUser}" id="formRegistration" method="post">
-            <input class="input" th:field="${regUser.username}" th:value="${regUser.username}" name="email" type="email"
+        <form class="tab-form" th:action="@{/registration}" th:object="${user}" id="formRegistration" method="post">
+            <input class="input" th:field="${user.username}" th:value="${user.username}" name="email" type="email"
                    placeholder="Введите E-mail адрес">
-            <input class="input" th:field="${regUser.password}" name="password" type="password"
+            <input class="input" th:field="${user.password}" name="password" type="password"
                    placeholder="Введите пароль">
-            <input class="input" th:field="${regUser.password2}" name="password2" type="password" placeholder="Подтвердите пароль">
+            <input class="input" th:field="${user.confirmPassword}" name="password2" type="password"
+                   placeholder="Подтвердите пароль">
             <span>
                 <input type="checkbox" required>
                 Я принимаю <a href="#" target="_blank">условия регистрации</a>
             </span>
             <div class="errors" th:if="${regError != null}">
                 <ul>
-                    <li th:each="err : ${regError}" th:text="${err.value}"/>
+                    <li th:each="err : ${regError}" th:text="${err}"/>
                 </ul>
             </div>
             <input type="submit" class="button" value="Регистрация">
         </form>
 
-        <form class="tab-form" method="post" id="formRecoveryPassword">
-            <input class="input" name="email" type="email" placeholder="Введите E-mail адрес">
-            <input value="Восстановить пароль" class="button">
+        <form class="tab-form" method="post" th:action="@{/recovery}" th:object="${user}" id="formRecoveryPassword">
+            <input class="input" th:field="${user.username}" th:value="${user.username}" name="email" type="email"
+                   placeholder="Введите E-mail адрес">
+            <div class="errors" th:if="${recoveryError != null}">
+                <ul>
+                    <li th:each="err : ${recoveryError}" th:text="${err}"/>
+                </ul>
+            </div>
+            <input type="submit" value="Восстановить пароль" class="button">
         </form>
     </div>
 </div>
@@ -59,6 +67,9 @@
 </script>
 <script th:if="${regError != null}">
     clickOnForm($(".tab[form_id=formRegistration]"));
+</script>
+<script th:if="${recoveryError != null}">
+    clickOnForm($(".tab[form_id=formRecoveryPassword]"));
 </script>
 </body>
 </html>

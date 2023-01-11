@@ -10,4 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @EntityGraph(attributePaths = {"roles"})
     User findFirstById(Long id);
+
+    User findByActivationCode(String key);
 }

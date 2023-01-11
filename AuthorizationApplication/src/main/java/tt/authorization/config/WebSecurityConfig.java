@@ -8,7 +8,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.WebFilterChainServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -26,8 +25,8 @@ public class WebSecurityConfig {
         return
                 http.authorizeExchange(exchanges -> exchanges
                                 .pathMatchers(
-                                        "/login", "/login/**", "/registration", "/test",
-                                        "/confirmPassword", "/confirmEmail", "/recoveryPassword").permitAll()
+                                         "/login/**", "/registration", "/activate/*",
+                                        "/recoveryPassword", "/recovery", "/recovery/*").permitAll()
                                 .pathMatchers("/confirm").hasRole("ADMIN")
                                 .pathMatchers("/app").hasAnyRole("USER","ADMIN")
                                 .anyExchange().authenticated()
@@ -41,16 +40,12 @@ public class WebSecurityConfig {
                         .and().build();
     }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public ReactiveAuthenticationManager authenticationManager() {
         UserDetailsRepositoryReactiveAuthenticationManager authenticationManager =
                 new UserDetailsRepositoryReactiveAuthenticationManager(userService);
-        authenticationManager.setPasswordEncoder(bCryptPasswordEncoder());
+        authenticationManager.setPasswordEncoder(userService.bCryptPasswordEncoder());
         return authenticationManager;
     }
 }

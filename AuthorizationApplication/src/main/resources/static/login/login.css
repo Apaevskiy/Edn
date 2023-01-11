@@ -24,14 +24,13 @@ body {
 .dws-form {
     /*background-color: rgba(var(--primary-color), 0.8);*/
     background-color: var(--primary-color);
-
     padding: 10px;
     width: 330px;
 }
 
 input:not([type=checkbox]){
     display: block;
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .tab-form {
@@ -77,6 +76,11 @@ input[name="tabs"] {
     margin-bottom: 11px;
     /*color: var(--primary-color);*/
     outline: none;
+}
+.apply{
+    text-align: center;
+    padding-top: 10px;
+    color: green;
 }
 .errors{
     display: flex;

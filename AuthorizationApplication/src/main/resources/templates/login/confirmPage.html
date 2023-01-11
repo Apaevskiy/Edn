@@ -10,17 +10,16 @@
 <div class="dws-wrapper">
     <img alt="logo" class="logo" width="310" src="/login/logo.svg" th:src="@{/login/logo.svg}">
     <div class="dws-form">
-        <form class="tab-form active" method="post" th:action="@{/confirmEmail}" th:object="${user}" id="formLogin">
+        <div class="tab-form active">
             <label
-                   th:text="${'На Вашу почту '+user.username+' выслано письмо с кодом. Введите его в поле ниже для продолжения регистрации.'}"></label>
+                   th:text="${'На Вашу почту '+user.username+' выслано письмо с подтверждением, перейдите по ней для продолжения регистрации.'}"></label>
             <input class="hidden" name="email" type="email" th:field="${user.username}" th:value="${user.username}">
-            <input type="submit" class="button" value="Подтвердить">
             <span style="text-align: center;" id="dateRegistration"></span>
             <a style="text-align: center;" th:href="@{/login?form=formRegistration}">Указать другой почтовый адрес</a>
             <button id="sendMailButton" class="button hidden" onclick=window.location.reload()>
                 Отправить письмо повторно
             </button>
-        </form>
+        </div>
     </div>
 </div>
 <script>

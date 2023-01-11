@@ -23,7 +23,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Email(message = "Неверный формат почты")
+    @Email(regexp = ".+[@].+[\\.].+", message = "Неверный формат почты")
     private String username;
     @Column(columnDefinition = "varchar(255) default '$2a$10$EjvY.OfCwyFqpgj03sR5D.LoJm2R53KvbYrhmC1D.BtrWbla77OEW'")
     @NotBlank(message = "Пароль не должен быть пустым")

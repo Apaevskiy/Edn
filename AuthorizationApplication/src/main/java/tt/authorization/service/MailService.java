@@ -1,6 +1,7 @@
 package tt.authorization.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -23,6 +26,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class MailService {
     private final String messageHtml;
     private final JavaMailSender mailSender;
+    @Value("${server.port}")
+    private String serverPort;
+    @Value("${spring.mail.subject.message}")
+    private String subjectMessage;
+    @Value("${spring.mail.recovery.password.message}")
+    private String recoveryMessage;
+    @Value("${spring.mail.registration.message}")
+    private String registrationMessage;
 
     public MailService(JavaMailSender mailSender) {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -31,13 +42,16 @@ public class MailService {
         this.mailSender = mailSender;
     }
 
-    public void sendEmail(String to, String key) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, false);
+    public void sendEmail(String to, String key, String message) throws MessagingException, UnknownHostException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false);
         helper.setTo(to);
-        helper.setSubject("Подтверждение авторизации ЭДиН");
-        helper.setText(messageHtml.replaceAll("key", key), true);
-        this.mailSender.send(message);
+        helper.setSubject(subjectMessage);
+        helper.setText(
+                messageHtml.replaceAll("keyUrl", "http://"+ InetAddress.getLocalHost().getHostAddress() + ":" + serverPort + key)
+                .replaceAll("key", key)
+                        .replaceAll("message", message), true);
+        this.mailSender.send(mimeMessage);
     }
 
     private String asString(Resource resource) {
@@ -47,5 +61,13 @@ public class MailService {
             log.error(e.getMessage());
             throw new UncheckedIOException(e);
         }
+    }
+
+    public void sendRegistrationEmail(String username, String activationCode) throws UnknownHostException, MessagingException {
+        sendEmail(username, "/activate/"+activationCode, registrationMessage);
+    }
+
+    public void sendRecoveryEmail(String username, String activationCode) throws UnknownHostException, MessagingException {
+        sendEmail(username, "/recovery/"+activationCode, recoveryMessage);
     }
 }

@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 public class ControllerUtils {
     static List<String> getErrors(BindingResult bindingResult) {
-        return bindingResult.getFieldErrors()
-                .stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
+        return bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
     }
 }
