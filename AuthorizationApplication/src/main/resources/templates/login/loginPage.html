@@ -21,8 +21,8 @@
             <input class="input" th:field="${user.password}" name="password" type="password"
                    placeholder="Введите пароль" id="password">
             <input type="submit" value="Войти" class="button">
-            <div th:if="${param.logout}">Вы вышли из аккаунта.</div>
             <a form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
+            <div style="text-align: center;" th:if="${param.logout}">Вы вышли из аккаунта.</div>
             <span class="apply" th:if="regSuccess!=null" th:text="${regSuccess}"></span>
         </form>
 

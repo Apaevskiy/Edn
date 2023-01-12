@@ -1,54 +1,75 @@
 package tt.authorization.repository.session;
 
+import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import reactor.core.publisher.Mono;
-import tt.authorization.entity.session.CustomSession;
 
 import javax.transaction.Transactional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.time.Duration;
+import java.util.Map;
 
 @Transactional
-public class CustomSessionRepository implements ReactiveSessionRepository<CustomSession> {
+public class CustomSessionRepository implements ReactiveSessionRepository<MapSession> {
 
-    private final SessionRepository sessionRepository;
+    /*private final SessionRepository sessionRepository;
+    private final SessionObjectRepository sessionObjectRepository;
 
     public CustomSessionRepository(SessionRepository sessionRepository,
+                                   SessionObjectRepository sessionObjectRepository,
                                    ConcurrentHashMap<String, Session> map) {
         this.sessionRepository = sessionRepository;
-        if (map != null)
+        this.sessionObjectRepository = sessionObjectRepository;
+        if (map != null && !map.isEmpty())
             sessionRepository.saveAll(map.values().stream().map(CustomSession::new).collect(Collectors.toList()));
-    }
-
-    @Override
-    public Mono<CustomSession> createSession() {
-        return Mono.just(new CustomSession());
-    }
-
-    @Override
-    public Mono<Void> save(CustomSession session) {
-        if (!session.getId().equals(session.getOriginalId())) {
-            sessionRepository.deleteByName(session.getOriginalId());
+    }*/
+    private Integer defaultMaxInactiveInterval;
+    private final Map<String, Session> sessions;
+    public CustomSessionRepository(Map<String, Session> sessions) {
+        if (sessions == null) {
+            throw new IllegalArgumentException("sessions cannot be null");
+        } else {
+            this.sessions = sessions;
         }
-        try {
-            sessionRepository.save(new CustomSession(session));
-        } catch (Exception e) {
-            System.out.println("ERROR " + e.getMessage());
-        }
-        return Mono.empty();
     }
 
-    @Override
-    public Mono<CustomSession> findById(String name) {
-        return Mono.justOrEmpty(sessionRepository.findFirstByName(name))
-                .filter((session) -> !session.isExpired())
-                .switchIfEmpty(this.deleteById(name).then(Mono.empty()));
+    public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+        this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
     }
 
-    @Override
-    public Mono<Void> deleteById(String name) {
-        sessionRepository.deleteByName(name);
-        return Mono.empty();
+    public Mono<Void> save(MapSession session) {
+        return Mono.fromRunnable(() -> {
+            if (!session.getId().equals(session.getOriginalId())) {
+                this.sessions.remove(session.getOriginalId());
+            }
+
+            this.sessions.put(session.getId(), new MapSession(session));
+        });
     }
+
+    public Mono<MapSession> findById(String id) {
+        return Mono.defer(() -> {
+            return Mono.justOrEmpty(this.sessions.get(id)).filter((session) -> {
+                return !session.isExpired();
+            }).map(MapSession::new).switchIfEmpty(this.deleteById(id).then(Mono.empty()));
+        });
+    }
+
+    public Mono<Void> deleteById(String id) {
+        return Mono.fromRunnable(() -> {
+            Session var10000 = (Session)this.sessions.remove(id);
+        });
+    }
+
+    public Mono<MapSession> createSession() {
+        return Mono.defer(() -> {
+            MapSession result = new MapSession();
+            if (this.defaultMaxInactiveInterval != null) {
+                result.setMaxInactiveInterval(Duration.ofSeconds((long)this.defaultMaxInactiveInterval));
+            }
+
+            return Mono.just(result);
+        });
+    }
+
 }

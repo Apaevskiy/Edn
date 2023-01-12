@@ -18,6 +18,6 @@ public class Application {
 
     @Override
     public String toString() {
-        return "\"hashes\":[" +hash +']';
+        return hash.toString();
     }
 }

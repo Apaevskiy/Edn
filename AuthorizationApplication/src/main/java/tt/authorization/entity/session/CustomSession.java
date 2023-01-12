@@ -1,9 +1,11 @@
 package tt.authorization.entity.session;
 
+import lombok.ToString;
 import org.springframework.session.Session;
 import org.springframework.util.SerializationUtils;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -11,17 +13,16 @@ import java.util.*;
 
 @Entity
 @Table(name = "sessions")
-public class CustomSession implements Session {
+@ToString
+public class CustomSession implements Session, Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String name;
-    private final String originalName;
+    private String id;
+    private String originalName;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "session_attributes", joinColumns=@JoinColumn(name="session_id"))
     @MapKeyColumn(name = "attr_name")
     @Column(name = "attr_value")
-    private Map<String, byte[]> sessionAttrs;
+    private Map<String, byte[]> sessionAttrs = new HashMap<>();
     private Timestamp creationTime;
     private Timestamp lastAccessedTime;
     private Duration maxInactiveInterval;
@@ -30,26 +31,24 @@ public class CustomSession implements Session {
         this(generateName());
     }
 
-    public CustomSession(String name) {
-        this.sessionAttrs = new HashMap<>();
+    public CustomSession(String id) {
         this.creationTime = Timestamp.from(Instant.now());
         this.lastAccessedTime = this.creationTime;
         this.maxInactiveInterval = Duration.ofSeconds(1800L);
-        this.name = name;
-        this.originalName = name;
+        this.id = id;
+        this.originalName = id;
     }
 
     public CustomSession(Session session) {
-        this.sessionAttrs = new HashMap<>();
         this.creationTime = Timestamp.from(Instant.now());
         this.lastAccessedTime = this.creationTime;
         this.maxInactiveInterval = Duration.ofSeconds(1800L);
         if (session == null) {
             throw new IllegalArgumentException("session cannot be null");
         } else {
-            this.name = session.getId();
-            this.originalName = this.name;
-            this.sessionAttrs = new HashMap(session.getAttributeNames().size());
+            this.id = session.getId();
+            this.originalName = this.id;
+            this.sessionAttrs = new HashMap<>(session.getAttributeNames().size());
             Iterator var2 = session.getAttributeNames().iterator();
 
             while(var2.hasNext()) {
@@ -64,6 +63,7 @@ public class CustomSession implements Session {
             this.creationTime = Timestamp.from(session.getCreationTime());
             this.maxInactiveInterval = session.getMaxInactiveInterval();
         }
+        System.out.println(this);
     }
 
     public void setLastAccessedTime(Instant lastAccessedTime) {
@@ -75,7 +75,7 @@ public class CustomSession implements Session {
     }
 
     public String getId() {
-        return this.name;
+        return this.id;
     }
 
     public String getOriginalId() {
@@ -138,15 +138,15 @@ public class CustomSession implements Session {
     }
 
     public void setId(String name) {
-        this.name = name;
+        this.id = name;
     }
 
     public boolean equals(Object obj) {
-        return obj instanceof Session && this.name.equals(((Session)obj).getId());
+        return obj instanceof Session && this.id.equals(((Session)obj).getId());
     }
 
     public int hashCode() {
-        return this.name.hashCode();
+        return this.id.hashCode();
     }
 
     private static String generateName() {

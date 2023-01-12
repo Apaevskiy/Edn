@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="sidebar">
+    <div class="sidebar">
+        <link rel="stylesheet" th:href="@{/css/sidebar.css}" type="text/css">
+        <link rel="stylesheet" href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" type="text/css">
+        <div class="logo-details">
+            <div class="logo_name">
+                <img alt="logo" class="logo" src="/login/logo.svg" th:src="@{/login/logo.svg}">
+            </div>
+            <i class='bx bx-menu' id="btn"></i>
+        </div>
+        <ul class="nav-list">
+            <li>
+                <a href="#">
+                    <i class='bx bx-grid-alt'></i>
+                    <span class="links_name">Заявки</span>
+                </a>
+                <span class="tooltip">Заявки</span>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-search'></i>
+                    <span class="links_name">Поиск GLN</span>
+                </a>
+                <span class="tooltip">Поиск GLN</span>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-user'></i>
+                    <span class="links_name">Пользователи</span>
+                </a>
+                <span class="tooltip">Пользователи</span>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Настройки</span>
+                </a>
+                <span class="tooltip">Настройки</span>
+            </li>
+            <li class="profile">
+                <form action="/logout" class="i" method="post" id="log_out">
+                    <input type="hidden" name="_csrf" value="2380c053-bae2-4bb8-843d-d2bbc43b6a54">
+                    <span class="tooltip">Настройки</span><button id="logoutButton"><i class="bx bx-log-out" id="log_out_user"></i><span class="links_name">Выйти из аакаунта</span></button></form>
+                <span class="tooltip">Выйти из аккаунта</span>
+            </li>
+        </ul>
+        <script>
+            let sidebar = document.querySelector(".sidebar");
+            let closeBtn = document.querySelector("#btn");
+
+            closeBtn.addEventListener("click", ()=>{
+                sidebar.classList.toggle("open");
+                menuBtnChange();
+            });
+
+            function menuBtnChange() {
+                if(sidebar.classList.contains("open")){
+                    closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+                }else {
+                    closeBtn.classList.replace("bx-menu-alt-right","bx-menu");
+                }
+            }
+        </script>
+    </div>
+</div>
+</body>
+</html>

@@ -1,51 +1,69 @@
 package tt.authorization.config;
 
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.WebFilterChainServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import reactor.core.publisher.Mono;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import tt.authorization.service.UserService;
 
 @Configuration
-@EnableWebFluxSecurity
+@EnableWebSecurity
 @AllArgsConstructor
-public class WebSecurityConfig {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
 
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return
-                http.authorizeExchange(exchanges -> exchanges
-                                .pathMatchers(
-                                         "/login/**", "/registration", "/activate/*",
-                                        "/recoveryPassword", "/recovery", "/recovery/*").permitAll()
-                                .pathMatchers("/confirm").hasRole("ADMIN")
-                                .pathMatchers("/app").hasAnyRole("USER","ADMIN")
-                                .anyExchange().authenticated()
-                                .and().csrf().disable())
-                        .formLogin().loginPage("/login")
-                        .authenticationFailureHandler((exchange, exception) -> Mono.error(exception))
-                        .authenticationSuccessHandler(new WebFilterChainServerAuthenticationSuccessHandler())
-                        .and().httpBasic()
-                        .and().logout()
-                        .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
-                        .and().build();
+    /* @Bean
+     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+         return
+                 http.authorizeExchange(exchanges -> exchanges
+                                 .pathMatchers(
+                                          "/login/**", "/registration", "/activate/*",
+                                         "/recoveryPassword", "/recovery", "/recovery/*").permitAll()
+                                 .pathMatchers("/confirm").hasRole("ADMIN")
+                                 .pathMatchers("/app").hasAnyRole("USER","ADMIN")
+                                 .anyExchange().authenticated()
+                                 .and().csrf().disable())
+                         .formLogin().loginPage("/login")
+                         .authenticationFailureHandler((exchange, exception) -> Mono.error(exception))
+                         .authenticationSuccessHandler(new WebFilterChainServerAuthenticationSuccessHandler())
+                         .and().httpBasic()
+                         .and()
+                         .logout()
+                         .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/logout"))
+                         .and().build();
+     }*/
+    @Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .csrf()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/superAdmin/**").hasRole("SUPERADMIN")
+                .antMatchers("/", "/login/**", "/traffic/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login").permitAll()
+                .and()
+                    .rememberMe()
+                .and()
+                    .logout().permitAll().logoutSuccessUrl("/login");
     }
 
-
-    @Bean
+    @Autowired
+    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService).passwordEncoder(userService.bCryptPasswordEncoder());
+    }
+   /* @Bean
     public ReactiveAuthenticationManager authenticationManager() {
         UserDetailsRepositoryReactiveAuthenticationManager authenticationManager =
                 new UserDetailsRepositoryReactiveAuthenticationManager(userService);
         authenticationManager.setPasswordEncoder(userService.bCryptPasswordEncoder());
         return authenticationManager;
-    }
+    }*/
 }
