@@ -2,15 +2,11 @@ package tt.authorization.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 import tt.authorization.entity.security.User;
 import tt.authorization.service.MailService;
 import tt.authorization.service.UserService;
@@ -33,23 +29,17 @@ public class LoginController {
         this.mailService = mailService;
     }
 
-    @GetMapping(path = {"/", "/login", "/recovery", "/registration"})
+    @GetMapping
+    public String mainPage(Authentication authentication) {
+        return authentication!=null && authentication.isAuthenticated() ?
+                "redirect:/api" :
+                "redirect:/login";
+    }
+
+    @GetMapping(path = {"/login", "/registration"})
     public String loginPage(@RequestParam(name = "form", required = false) String form, Model model) {
         model.addAttribute("user", new User());
         return "login/loginPage";
-    }
-
-    @PostMapping("/login")
-    public Mono<String> login(ServerWebExchange exchange) {
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .cast(User.class)
-//                .doOnNext(userDetails -> {
-//                    addTokenHeader(exchange.getResponse(), userDetails); // your job to code it the way you want
-//                })
-                .map(u -> "redirect:/app");
     }
 
 
@@ -86,7 +76,7 @@ public class LoginController {
     @PostMapping("/recovery")
     public String recovery(@ModelAttribute User user,
                            Model model) {
-        if(!Pattern.compile(".+[@].+[\\.].+").matcher(user.getUsername()).find()){
+        if (!Pattern.compile(".+[@].+[\\.].+").matcher(user.getUsername()).find()) {
             model.addAttribute("user", user);
             model.addAttribute("recoveryError", Collections.singleton("Неверный формат почты"));
             return "login/loginPage";
@@ -108,12 +98,13 @@ public class LoginController {
             return "login/loginPage";
         }
     }
+
     @GetMapping("/activate/{key}")
-    public String confirmEmail(@PathVariable(name = "key") String key, Model model){
+    public String confirmEmail(@PathVariable(name = "key") String key, Model model) {
         System.out.println("activate: " + key);
         User activatedUser = userService.activateUser(key);
 
-        if(activatedUser!=null){
+        if (activatedUser != null) {
             model.addAttribute("user", activatedUser);
             model.addAttribute("regSuccess", "Регистрация прошла успешна");
         } else {
@@ -122,6 +113,7 @@ public class LoginController {
         }
         return "login/loginPage";
     }
+
     @GetMapping("/recovery/{key}")
     public String recoveryPasswordPage(@PathVariable(name = "key") String key, Model model) {
         System.out.println("recovery: " + key);
@@ -150,7 +142,7 @@ public class LoginController {
             return "login/recoveryPasswordPage";
         }
         User dbUser = userService.updatePassword(user);
-        if(user==null)
+        if (user == null)
             return "redirect:/login";
 
         model.addAttribute("user", dbUser);

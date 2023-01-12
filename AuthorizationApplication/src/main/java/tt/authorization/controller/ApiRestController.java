@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-import tt.authorization.config.WebClientConfig;
+import tt.authorization.service.WebClientService;
 import tt.authorization.service.ApiService;
 
 import java.util.List;
@@ -17,16 +17,16 @@ import java.util.List;
 @RequestMapping("/api")
 public class ApiRestController {
     private final ApiService apiService;
-    private final WebClientConfig webClientConfig;
+    private final WebClientService webClientService;
 
     @PostMapping("/applications")
     public Mono<ResponseEntity<String>> createApplication(@RequestBody String jsonString) {
         List<String> hashes;
         try {
             hashes = apiService.validHashes(jsonString);
-            return webClientConfig.createApplication()
+            return webClientService.createApplication()
                             .map(id -> {
-                                webClientConfig.encryptHashesAndWriteToDb(id, hashes)
+                                webClientService.encryptHashesAndWriteToDb(id, hashes)
                                         .doOnError(throwable -> log.error(throwable.getMessage()))
                                         .subscribe();
                                 return new ResponseEntity<>(id, HttpStatus.ACCEPTED);
@@ -38,6 +38,6 @@ public class ApiRestController {
 
     @GetMapping("/applications/{id}")
     public Mono<String> getHashesOfApplication(@PathVariable String id) {
-        return webClientConfig.getApplicationById(id).map(apiService::writeApplicationToJsonObject);
+        return webClientService.getApplicationById(id).map(apiService::writeApplicationToJsonObject);
     }
 }

@@ -2,7 +2,6 @@ package tt.authorization.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import reactor.core.publisher.Mono;
 import tt.authorization.entity.security.Role;
 import tt.authorization.entity.security.User;
 import tt.authorization.repository.secutiry.RoleRepository;
@@ -24,7 +22,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserService implements UserDetailsService, ReactiveUserDetailsService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder = bCryptPasswordEncoder();
@@ -36,11 +34,6 @@ public class UserService implements UserDetailsService, ReactiveUserDetailsServi
 
     public User getUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
-    }
-
-    @Override
-    public Mono<UserDetails> findByUsername(String s) {
-        return Mono.just(getUserByUsername(s));
     }
 
     public boolean addUser(User user) {

@@ -5,11 +5,10 @@ import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import reactor.core.publisher.Mono;
 
-import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.Map;
 
-@Transactional
+//@Transactional
 public class CustomSessionRepository implements ReactiveSessionRepository<MapSession> {
 
     /*private final SessionRepository sessionRepository;

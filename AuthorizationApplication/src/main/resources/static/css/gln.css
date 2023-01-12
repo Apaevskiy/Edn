@@ -1,0 +1,62 @@
+.glnForm {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 800px;
+}
+.filterDiv {
+    margin: 10px;
+    display: grid;
+    justify-content: space-evenly;
+    justify-items: center;
+}
+.filterDiv input, .filterDiv select {
+    font-size: 16px;
+    border: 2px solid #e9eaea;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    /*color: var(--primary-color);*/
+    min-width: 200px;
+    outline: none;
+}
+.button {
+    background: #008FD0FF;
+    color: #ffffff;
+    font-size: 18px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    padding: 10px;
+    min-width: 200px;
+    height: 50px;
+}
+.ant-page-header-heading-title {
+    margin-right: 12px;
+    margin-bottom: 0;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 32px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.ant-page-header-heading-left {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin: 4px 0;
+    overflow: hidden;
+}
+.ant-page-header-heading {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}

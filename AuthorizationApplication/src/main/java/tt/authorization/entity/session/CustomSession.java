@@ -11,8 +11,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-@Entity
-@Table(name = "sessions")
+//@Entity
+//@Table(name = "sessions")
 @ToString
 public class CustomSession implements Session, Serializable {
     @Id

@@ -1,7 +1,4 @@
 package tt.authorization.repository.session;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import tt.authorization.entity.session.CustomSession;
-
-public interface SessionRepository extends JpaRepository<CustomSession, String> {
+public interface SessionRepository /*extends JpaRepository<CustomSession, String>*/ {
 }

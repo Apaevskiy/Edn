@@ -41,18 +41,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/superAdmin/**").hasRole("SUPERADMIN")
-                .antMatchers("/", "/login/**", "/traffic/**").permitAll()
+                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/", "/login/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login").permitAll()
-                .and()
-                    .rememberMe()
-                .and()
-                    .logout().permitAll().logoutSuccessUrl("/login");
+                .and().formLogin().loginPage("/login").successForwardUrl("/api").permitAll()
+                .and().rememberMe()
+                .and().logout().permitAll().logoutSuccessUrl("/login");
     }
 
     @Autowired

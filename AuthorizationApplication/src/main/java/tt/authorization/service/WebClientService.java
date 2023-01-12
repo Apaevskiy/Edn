@@ -1,4 +1,4 @@
-package tt.authorization.config;
+package tt.authorization.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class WebClientConfig {
+public class WebClientService {
     private final WebClient client;
 
 
-    public WebClientConfig() {
+    public WebClientService() {
         this.client = WebClient.builder().baseUrl("http://localhost:9091")
                 .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .build();
