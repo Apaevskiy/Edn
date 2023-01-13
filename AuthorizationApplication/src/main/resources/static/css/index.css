@@ -1,0 +1,15 @@
+.row {
+    margin: 10px;
+}
+.headerPage{
+    margin-bottom: 0px;
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 22px;
+    line-height: 32px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.usersTable{
+    margin-top: 50px;
+}

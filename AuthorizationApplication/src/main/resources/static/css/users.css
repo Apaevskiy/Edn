@@ -1,0 +1,6 @@
+.filterForm{
+    max-width: 500px;
+}
+.filterForm > * {
+    margin: 20px;
+}

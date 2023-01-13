@@ -15,10 +15,7 @@ import tt.authorization.entity.security.User;
 import tt.authorization.repository.secutiry.RoleRepository;
 import tt.authorization.repository.secutiry.UserRepository;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -44,9 +41,12 @@ public class UserService implements UserDetailsService {
         }
         user.setActive(true);
         user.setDateRegistration(new Date().getTime());
-        Optional<Role> role = roleRepository.findById(1L);
-        role.ifPresent(value -> user.setRoles(Collections.singleton(value)));
-        user.setActivationCode(UUID.randomUUID().toString());
+
+        if(user.getRole()!=null){
+            Optional<Role> role = roleRepository.findById(1L);
+            role.ifPresent(user::setRole);
+            user.setActivationCode(UUID.randomUUID().toString());
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
@@ -99,5 +99,15 @@ public class UserService implements UserDetailsService {
             return null;
         user.setActivationCode(UUID.randomUUID().toString());
         return userRepository.save(user);
+    }
+
+    public Set<User> findAllAndFilter(String email, Long roleId){
+        if(email!= null && email.isEmpty())
+            email = null;
+        return userRepository.findAllAndFilterByEmailAndRole(email, roleId);
+    }
+
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
     }
 }

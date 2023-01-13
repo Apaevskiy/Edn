@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import tt.authorization.entity.security.User;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -28,12 +29,6 @@ public class MailService {
     private final JavaMailSender mailSender;
     @Value("${server.port}")
     private String serverPort;
-    @Value("${spring.mail.subject.message}")
-    private String subjectMessage;
-    @Value("${spring.mail.recovery.password.message}")
-    private String recoveryMessage;
-    @Value("${spring.mail.registration.message}")
-    private String registrationMessage;
 
     public MailService(JavaMailSender mailSender) {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -42,15 +37,16 @@ public class MailService {
         this.mailSender = mailSender;
     }
 
-    public void sendEmail(String to, String key, String message) throws MessagingException, UnknownHostException {
+    public void sendEmail(String to, String message) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false);
         helper.setTo(to);
-        helper.setSubject(subjectMessage);
-        helper.setText(
-                messageHtml.replaceAll("keyUrl", "http://"+ InetAddress.getLocalHost().getHostAddress() + ":" + serverPort + key)
-                .replaceAll("key", key)
-                        .replaceAll("message", message), true);
+        helper.setSubject("Регистрация в ЭДиН");
+        int index = messageHtml.indexOf("_message_");
+        StringBuilder builder = new StringBuilder(messageHtml.replaceAll("_message_", ""));
+        builder.insert(index, message);
+
+        helper.setText( builder.toString(), true);
         this.mailSender.send(mimeMessage);
     }
 
@@ -64,10 +60,37 @@ public class MailService {
     }
 
     public void sendRegistrationEmail(String username, String activationCode) throws UnknownHostException, MessagingException {
-        sendEmail(username, "/activate/"+activationCode, registrationMessage);
+        String message = String.format("<p>Вы получили это письмо, потому что кто-то (возможно, и Вы :)" +
+                "указал этот e-mail для регистрации на платформе ЭДиН." +
+                "Чтобы подтвердить регистрацию, перейдите, пожалуйста, по ссылке:</p>" +
+                "<a href=\"%s\">%s</a>" +
+                "<p>Если это были не Вы, просто проигнорируйте наше письмо.</p>",
+                "http://"+ InetAddress.getLocalHost().getHostAddress() + ":" + serverPort + "/activate/"+activationCode,
+                "/activate/"+activationCode);
+
+        sendEmail(username, message);
     }
 
     public void sendRecoveryEmail(String username, String activationCode) throws UnknownHostException, MessagingException {
-        sendEmail(username, "/recovery/"+activationCode, recoveryMessage);
+        String message = String.format("<p>Вы получили это письмо, потому что кто-то пытается" +
+                "    восстановить пароль от аккаунта на платформе ЭДиН." +
+                "    Чтобы восстановить пароль, перейдите, пожалуйста, по ссылке:</p>" +
+                "<a href=\"%s\">%s</a>" +
+                "<p>Если это были не Вы, просто проигнорируйте наше письмо.</p>",
+                "http://"+ InetAddress.getLocalHost().getHostAddress() + ":" + serverPort + "/activate/"+activationCode,
+                "/activate/"+activationCode);
+
+        sendEmail(username, message);
+    }
+
+    public void sendRegistrationByAdmin(User user) throws MessagingException {
+        String message = String.format("<p>Вас зарегистрировали на платформе " +
+                "  <a href=\"https://app.edn.by/web/\">ЭДиН</a>." +
+                "  Ваша учётная запись:</p>" +
+                "<div style=\"background-color: rgba(149,161,183,0.62)\">" +
+                "  <p>Логин: %s</p>" +
+                "  <p>Пароль: %s</p>" +
+                "</div>", user.getUsername(), user.getPassword());
+        sendEmail(user.getUsername(), message);
     }
 }

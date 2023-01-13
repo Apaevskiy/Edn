@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Пользователи</title>
+    <link href="/static/css/sidebar.css" rel="stylesheet" th:href="@{/css/sidebar.css}" type="text/css">
+    <link href="/static/css/users.css" rel="stylesheet" th:href="@{/css/users.css}" type="text/css">
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" type="text/css">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="l-navbar" id="nav-bar" th:insert="sidebar.html :: sidebar"></div>
+
+<!--Container Main start-->
+<div class="height-100 bg-light">
+    <div style="padding: 50px; color: rgba(0, 0, 0, 0.65); background: #fff;">
+        <h1>Пользователи</h1>
+
+        <form class="filterForm">
+            <div class="row">
+                <div class="col">
+                    <input id="emailSearchField" class="form-control" name="email" placeholder="Email" type="text">
+                </div>
+            </div>
+            <div class="row">
+                <select class="form-control" name="roleId" id="roleSearchField">
+                    <option value="">Выберите роль</option>
+                    <option th:each="role : ${roles}" th:text="${role.getFullName()}"
+                            th:value="${role.getId()}"></option>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input class="btn btn-primary btn-sm" type="submit" value="Поиск">
+                    <button class="btn btn-secondary btn-sm" onclick="clearFields()" type="button">Очистить</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="usersTable">
+        <button class="btn btn-primary btn-lg" data-target="#exampleModal" data-toggle="modal" data-whatever="@mdo"
+                type="button">
+                    <span aria-label="plus" class="anticon anticon-plus" role="img">
+                        <svg aria-hidden="true" data-icon="plus" fill="currentColor" focusable="false" height="1em"
+                             viewBox="64 64 896 896" width="1em"><defs><style></style></defs>
+                            <path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"></path>
+                            <path d="M176 474h672q8 0 8 8v60q0 8-8 8H176q-8 0-8-8v-60q0-8 8-8z"></path>
+                    </svg>
+                    </span>
+            <span>Добавить пользователя</span>
+        </button>
+        <table class="table table-striped">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Email</th>
+                <th scope="col">Роль</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${users}">
+                <th scope="row" th:text="${u.id}">1</th>
+                <td th:text="${u.username}">Mark</td>
+                <td th:text="${u.role.getFullName()}">Otto</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="exampleModal" role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" name="newUserForm" th:action="@{/api/users}" th:object="${user}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Новый пользователь</h5>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="newEmailField">Адрес электронной почты</label>
+                            <input aria-describedby="emailHelp" class="form-control" id="newEmailField"
+                                   placeholder="Введите email"
+                                   th:field="${user.username}" type="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPasswordField">Пароль</label>
+                            <input class="form-control" id="newPasswordField" placeholder="Введите пароль"
+                                   th:field="${user.password}" type="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPasswordConfirmField">Подтвердите пароль</label>
+                            <input class="form-control" id="newPasswordConfirmField" placeholder="Подтвердите пароль"
+                                   th:field="${user.confirmPassword}" type="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newRoleField">Выберите роль</label>
+                            <select class="form-control" id="newRoleField" th:field="${user.role}">
+                                <option th:each="role : ${roles}" th:text="${role.getFullName()}"
+                                        th:value="${role.getId()}"></option>
+                            </select>
+                        </div>
+                        <div class="alert alert-danger d-none" id="messageCreateUserField" role="alert">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Отмена</button>
+                        <button class="btn btn-primary" onclick="loadTableFromGS1()" type="button">Добавить
+                            пользователя
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script>
+    function loadTableFromGS1() {
+        let messageField = document.getElementById("messageCreateUserField");
+        messageField.classList.add("d-none");
+        let formData = document.forms['newUserForm'];
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', formData.action);
+        xhr.send(new FormData(formData));
+
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                messageField.innerHTML = '<ul>';
+                messageField.classList.replace("alert-success", "alert-danger");
+                messageField.classList.remove("d-none");
+                JSON.parse(xhr.response).forEach(element => messageField.innerHTML += '<li>' + element + '</li>');
+                messageField.innerHTML = '</ul>';
+            } else {
+                messageField.classList.remove("d-none")
+                messageField.classList.replace("alert-danger", "alert-success");
+                messageField.innerHTML = '<p>' + JSON.parse(xhr.response) + '</p>'
+            }
+        };
+    }
+
+    function clearFields() {
+        document.getElementById("roleSearchField").selectedIndex = 0;
+        document.getElementById("emailSearchField").value  = '';
+    }
+</script>
+</body>
+</html>

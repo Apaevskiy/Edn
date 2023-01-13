@@ -1,75 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      lang="en">
+<html dir="ltr" lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Пользователи</title>
+
 </head>
-<body>
-<div th:fragment="sidebar">
-    <div class="sidebar">
-        <link rel="stylesheet" th:href="@{/css/sidebar.css}" type="text/css">
-        <link rel="stylesheet" href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" type="text/css">
-        <div class="logo-details">
-            <div class="logo_name">
-                <img alt="logo" class="logo" src="/login/logo.svg" th:src="@{/login/logo.svg}">
-            </div>
-            <i class='bx bx-menu' id="btn"></i>
+<body id="body-pd" th:fragment="sidebar">
+
+
+<nav class="nav">
+    <div>
+        <div class="nav_list">
+            <i class='bx bx-menu nav_logo-icon nav_link' id="header-toggle"></i>
+            <a class="nav_link active" href="#">
+                <i class='bx bx-grid-alt nav_icon'></i>
+                <span class="nav_name">Заявки</span>
+            </a>
+            <a class="nav_link" href="#">
+                <i class='bx bx-user nav_icon'></i>
+                <span class="nav_name">Пользователи</span>
+            </a>
         </div>
-        <ul class="nav-list">
-            <li>
-                <a href="#">
-                    <i class='bx bx-grid-alt'></i>
-                    <span class="links_name">Заявки</span>
-                </a>
-                <span class="tooltip">Заявки</span>
-            </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-search'></i>
-                    <span class="links_name">Поиск GLN</span>
-                </a>
-                <span class="tooltip">Поиск GLN</span>
-            </li>
-            <li>
-                <a href="#">
-                    <i class='bx bxs-user'></i>
-                    <span class="links_name">Пользователи</span>
-                </a>
-                <span class="tooltip">Пользователи</span>
-            </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-cog'></i>
-                    <span class="links_name">Настройки</span>
-                </a>
-                <span class="tooltip">Настройки</span>
-            </li>
-            <li class="profile">
-                <form action="/logout" class="i" method="post" id="log_out">
-                    <input type="hidden" name="_csrf" value="2380c053-bae2-4bb8-843d-d2bbc43b6a54">
-                    <span class="tooltip">Настройки</span><button id="logoutButton"><i class="bx bx-log-out" id="log_out_user"></i><span class="links_name">Выйти из аакаунта</span></button></form>
-                <span class="tooltip">Выйти из аккаунта</span>
-            </li>
-        </ul>
-        <script>
-            let sidebar = document.querySelector(".sidebar");
-            let closeBtn = document.querySelector("#btn");
-
-            closeBtn.addEventListener("click", ()=>{
-                sidebar.classList.toggle("open");
-                menuBtnChange();
-            });
-
-            function menuBtnChange() {
-                if(sidebar.classList.contains("open")){
-                    closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
-                }else {
-                    closeBtn.classList.replace("bx-menu-alt-right","bx-menu");
-                }
-            }
-        </script>
     </div>
-</div>
+    <a class="nav_link" href="#"> <i class='bx bx-log-out nav_icon'></i> <span class="nav_name">SignOut</span> </a>
+</nav>
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        const showNavbar = (toggleId, navId, bodyId) => {
+            const toggle = document.getElementById(toggleId),
+                nav = document.getElementById(navId),
+                bodypd = document.getElementById(bodyId);
+            if (toggle && nav && bodypd) {
+                toggle.addEventListener('click', () => {
+                    nav.classList.toggle('show');
+                    toggle.classList.toggle('bx-menu-alt-left');
+                    bodypd.classList.toggle('body-pd');
+                })
+            }
+        }
+        showNavbar('header-toggle', 'nav-bar', 'body-pd')
+        const linkColor = document.querySelectorAll('.nav_link')
+
+        function colorLink() {
+            if (linkColor) {
+                linkColor.forEach(l => l.classList.remove('active'))
+                this.classList.add('active')
+            }
+        }
+
+        linkColor.forEach(l => l.addEventListener('click', colorLink));
+    });
+</script>
 </body>
 </html>
