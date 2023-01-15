@@ -2,8 +2,9 @@ version: '2'
 
 services:
   authorization:
-    build: 'AuthorizationApplication'
-    container_name: authorization
+#    build: 'AuthorizationApplication'
+#    container_name: authorization
+    image: 'paevskiysanya/edn_authorization'
     depends_on:
       - postgres
       - translator
@@ -28,8 +29,9 @@ services:
       - POSTGRES_PASSWORD=compose-postgres
 
   translator:
-    build: 'HashTranslatorApplication'
-    container_name: translator
+#    build: 'HashTranslatorApplication'
+#    container_name: translator
+    image: 'paevskiysanya/edn_hash_translator'
     ports:
       - 9092:9092
     depends_on:
