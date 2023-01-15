@@ -1,5 +1,6 @@
-package tt.authorization.entity.security;
+package tt.authorization.entity;
 
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class User implements UserDetails {
     private String username;
     @Column(columnDefinition = "varchar(255) default '$2a$10$EjvY.OfCwyFqpgj03sR5D.LoJm2R53KvbYrhmC1D.BtrWbla77OEW'")
     @NotBlank(message = "Пароль не должен быть пустым")
+    @Expose
     private String password;
     @Transient
     private String confirmPassword;

@@ -3,6 +3,7 @@ package tt.hashtranslator.controller;
 //import com.google.gson.JsonObject;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import tt.hashtranslator.models.Application;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class HashRestController {
     private final HttpService httpService;
     private final AppRepository repository;
@@ -24,6 +26,7 @@ public class HashRestController {
 
     @PostMapping("/encryptHashes/{id}")
     public Mono<Map<String, String>> encryptHashesAndWriteToDb(@PathVariable("id") String id, @RequestBody List<String> hashes) {
+        log.info("-POST------ " + id + " ---" + hashes );
         return repository.findById(id).flatMap(app -> {
             hashes.forEach(s -> {
                 s = s.replaceAll("\"", "");
@@ -34,6 +37,7 @@ public class HashRestController {
     }
     @GetMapping("/getHashes/{id}")
     public Mono<Map<String, String>> encryptHashesAndWriteToDb(@PathVariable("id") String id) {
+        log.info("-GET----- " + id  );
         return repository.findById(id).map(Application::getHash);
     }
 

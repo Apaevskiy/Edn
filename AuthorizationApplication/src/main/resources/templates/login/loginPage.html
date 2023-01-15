@@ -22,6 +22,7 @@
                    placeholder="Введите пароль" id="password">
             <input type="submit" value="Войти" class="button">
             <a form_id="formRecoveryPassword" class="tab ">Я забыл свой пароль</a>
+            <div class="errors" th:if="${param.error}">Неверный логин или пароль.</div>
             <div style="text-align: center;" th:if="${param.logout}">Вы вышли из аккаунта.</div>
             <span class="apply" th:if="regSuccess!=null" th:text="${regSuccess}"></span>
         </form>

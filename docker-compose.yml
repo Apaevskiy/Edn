@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+  authorization:
+    build: 'AuthorizationApplication'
+    container_name: authorization
+    depends_on:
+      - postgres
+      - translator
+    ports:
+      - 9090:9090
+    environment:
+      - SERVER_PORT=9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/EdnUsers
+      - SPRING_DATASOURCE_USERNAME=compose-postgres
+      - SPRING_DATASOURCE_PASSWORD=compose-postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - spring_web_client_url=http://translator:9092
+
+  postgres:
+    image: 'postgres:13.1-alpine'
+    container_name: postgres
+    ports:
+      - 5434:5434
+    environment:
+      - POSTGRES_DB=EdnUsers
+      - POSTGRES_USER=compose-postgres
+      - POSTGRES_PASSWORD=compose-postgres
+
+  translator:
+    build: 'HashTranslatorApplication'
+    container_name: translator
+    ports:
+      - 9092:9092
+    depends_on:
+      - mongo
+    environment:
+      - SERVER_PORT=9092
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_DATA_MONGODB_PORT=27018
+      - SPRING_DATA_MONGODB_DATABASE=Edin
+
+  mongo:
+    container_name: mongo
+    command: mongod --port 27018
+    image: "mongo:4.4.3"
+    ports:
+      - 27018:27018
+    restart: always

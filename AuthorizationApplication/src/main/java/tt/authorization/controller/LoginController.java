@@ -7,13 +7,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import tt.authorization.entity.security.User;
+import tt.authorization.entity.User;
 import tt.authorization.service.MailService;
 import tt.authorization.service.UserService;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
@@ -29,7 +27,7 @@ public class LoginController {
         this.mailService = mailService;
     }
 
-    @GetMapping
+    @GetMapping("/")
     public String mainPage(Authentication authentication) {
         return authentication!=null && authentication.isAuthenticated() ?
                 "redirect:/api" :
@@ -47,9 +45,8 @@ public class LoginController {
     public String registration(@Valid @ModelAttribute User user,
                                BindingResult bindingResult,
                                Model model) {
-        System.out.println("/reg: " + user);
 
-        if (userService.containsErrors(user, bindingResult, model)) {
+        if (userService.containsErrors(user, bindingResult)) {
             model.addAttribute("user", user);
             model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/loginPage";
@@ -66,7 +63,8 @@ public class LoginController {
             user.setDateRegistration(user.getDateRegistration() + 300000);
             model.addAttribute("user", user);
             return "login/confirmPage";
-        } catch (MessagingException | UnknownHostException e) {
+        } catch (Exception e) {
+            log.error(e.getMessage());
             bindingResult.addError(new ObjectError("regUser", "Ошибка отправки письма на данную почту"));
             model.addAttribute("regError", ControllerUtils.getErrors(bindingResult));
             return "login/loginPage";
@@ -93,7 +91,7 @@ public class LoginController {
             mailService.sendRecoveryEmail(dbUser.getUsername(), dbUser.getActivationCode());
             model.addAttribute("user", dbUser);
             return "login/confirmPage";
-        } catch (MessagingException | UnknownHostException e) {
+        } catch (Exception e) {
             model.addAttribute("regError", Collections.singleton("Ошибка отправки письма на данную почту"));
             return "login/loginPage";
         }
@@ -101,7 +99,6 @@ public class LoginController {
 
     @GetMapping("/activate/{key}")
     public String confirmEmail(@PathVariable(name = "key") String key, Model model) {
-        System.out.println("activate: " + key);
         User activatedUser = userService.activateUser(key);
 
         if (activatedUser != null) {
@@ -116,7 +113,6 @@ public class LoginController {
 
     @GetMapping("/recovery/{key}")
     public String recoveryPasswordPage(@PathVariable(name = "key") String key, Model model) {
-        System.out.println("recovery: " + key);
         User activatedUser = userService.recoveryPassword(key);
 
         if (activatedUser != null) {
@@ -135,14 +131,14 @@ public class LoginController {
     public String recoveryPassword(@Valid @ModelAttribute User user,
                                    BindingResult bindingResult,
                                    Model model) {
-        if (userService.containsErrors(user, bindingResult, model)) {
+        if (userService.containsErrors(user, bindingResult)) {
             model.addAttribute("user", user);
             model.addAttribute("uuid", user.getActivationCode());
             model.addAttribute("recoveryError", ControllerUtils.getErrors(bindingResult));
             return "login/recoveryPasswordPage";
         }
         User dbUser = userService.updatePassword(user);
-        if (user == null)
+        if (dbUser == null)
             return "redirect:/login";
 
         model.addAttribute("user", dbUser);

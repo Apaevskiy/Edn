@@ -12,17 +12,23 @@
     <div>
         <div class="nav_list">
             <i class='bx bx-menu nav_logo-icon nav_link' id="header-toggle"></i>
-            <a class="nav_link active" href="#">
+            <a class="nav_link active" href="/api">
                 <i class='bx bx-grid-alt nav_icon'></i>
                 <span class="nav_name">Заявки</span>
             </a>
-            <a class="nav_link" href="#">
+            <a class="nav_link" href="/users">
                 <i class='bx bx-user nav_icon'></i>
                 <span class="nav_name">Пользователи</span>
             </a>
         </div>
     </div>
-    <a class="nav_link" href="#"> <i class='bx bx-log-out nav_icon'></i> <span class="nav_name">SignOut</span> </a>
+    <a class="nav_link" href="javascript: document.logoutForm.submit()">
+        <i class='bx bx-log-out nav_icon'></i>
+        <span class="nav_name">SignOut</span>
+        <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+            <input hidden type="submit" value="Sign Out"/>
+        </form>
+    </a>
 </nav>
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {

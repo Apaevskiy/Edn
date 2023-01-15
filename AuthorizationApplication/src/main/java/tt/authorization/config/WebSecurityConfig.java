@@ -15,26 +15,6 @@ import tt.authorization.service.UserService;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
 
-    /* @Bean
-     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-         return
-                 http.authorizeExchange(exchanges -> exchanges
-                                 .pathMatchers(
-                                          "/login/**", "/registration", "/activate/*",
-                                         "/recoveryPassword", "/recovery", "/recovery/*").permitAll()
-                                 .pathMatchers("/confirm").hasRole("ADMIN")
-                                 .pathMatchers("/app").hasAnyRole("USER","ADMIN")
-                                 .anyExchange().authenticated()
-                                 .and().csrf().disable())
-                         .formLogin().loginPage("/login")
-                         .authenticationFailureHandler((exchange, exception) -> Mono.error(exception))
-                         .authenticationSuccessHandler(new WebFilterChainServerAuthenticationSuccessHandler())
-                         .and().httpBasic()
-                         .and()
-                         .logout()
-                         .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/logout"))
-                         .and().build();
-     }*/
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -42,9 +22,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/", "/login/**").permitAll()
+                .antMatchers("/", "/login/**", "/registration", "/activate/*",
+                        "/recoveryPassword", "/recovery", "/recovery/*").permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login").successForwardUrl("/api").permitAll()
+                .and().formLogin().loginPage("/login").defaultSuccessUrl("/users", true).permitAll()
                 .and().rememberMe()
                 .and().logout().permitAll().logoutSuccessUrl("/login");
     }
@@ -53,11 +34,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(userService.bCryptPasswordEncoder());
     }
-   /* @Bean
-    public ReactiveAuthenticationManager authenticationManager() {
-        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager =
-                new UserDetailsRepositoryReactiveAuthenticationManager(userService);
-        authenticationManager.setPasswordEncoder(userService.bCryptPasswordEncoder());
-        return authenticationManager;
-    }*/
 }

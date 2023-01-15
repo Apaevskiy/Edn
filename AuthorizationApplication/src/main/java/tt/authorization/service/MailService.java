@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
-import tt.authorization.entity.security.User;
+import tt.authorization.entity.User;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -83,14 +83,14 @@ public class MailService {
         sendEmail(username, message);
     }
 
-    public void sendRegistrationByAdmin(User user) throws MessagingException {
+    public void sendRegistrationByAdmin(User user, String decodedPassword) throws MessagingException {
         String message = String.format("<p>Вас зарегистрировали на платформе " +
                 "  <a href=\"https://app.edn.by/web/\">ЭДиН</a>." +
                 "  Ваша учётная запись:</p>" +
                 "<div style=\"background-color: rgba(149,161,183,0.62)\">" +
                 "  <p>Логин: %s</p>" +
                 "  <p>Пароль: %s</p>" +
-                "</div>", user.getUsername(), user.getPassword());
+                "</div>", user.getUsername(), decodedPassword);
         sendEmail(user.getUsername(), message);
     }
 }

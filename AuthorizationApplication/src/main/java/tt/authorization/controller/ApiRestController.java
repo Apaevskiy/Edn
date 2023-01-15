@@ -40,6 +40,4 @@ public class ApiRestController {
     public Mono<String> getHashesOfApplication(@PathVariable String id) {
         return webClientService.getApplicationById(id).map(apiService::writeApplicationToJsonObject);
     }
-
-
 }

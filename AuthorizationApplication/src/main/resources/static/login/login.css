@@ -85,6 +85,7 @@ input[name="tabs"] {
 .errors{
     display: flex;
     justify-content: space-around;
+    color: red;
 }
 .errors > ul{
     padding-left: 0;

@@ -4,3 +4,30 @@
 .filterForm > * {
     margin: 20px;
 }
+#editUserForm .form-group{
+    padding-bottom: 1em;
+}
+#editUserForm .form-group > label {
+    padding-bottom: 0.5em;
+}
+.toast svg {
+    height: 2em;
+    width: 2em;
+}
+.toast .alert.alert-danger svg{
+    fill: brown;
+}
+.toast .alert.alert-success svg{
+    fill: #115e11;
+}
+.toast .alert {
+    --bs-alert-margin-bottom: 0;
+}
+.toast .alert > div {
+    color: black;
+}
+.username {
+    text-decoration: underline;
+    color: rgb(35, 81, 121);
+    cursor: pointer;
+}
